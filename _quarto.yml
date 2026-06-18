@@ -1,0 +1,17 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Harz Warmup"
+
+format:
+  html:
+    toc: true
+  revealjs:
+    theme:
+      - default
+      - metropolis.scss
+    slide-number: true
+    transition: fade
+    incremental: false

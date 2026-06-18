@@ -1,0 +1,100 @@
+[
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-start",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-start",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Start",
+    "text": "Technik: Start\n\nZIP entpacken\n\nmicroclimate_beginner.Rproj öffnen\n\n01_run_microclimate_beginner.R öffnen\n\nBlöcke mit Strg + Enter ausführen\n\nErgebnisse in outputs/ prüfen"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-daten-im-projekt",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-daten-im-projekt",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Daten im Projekt",
+    "text": "Technik: Daten im Projekt\nOrdnerstruktur:\nmicroclimate_beginner/\n  data/\n    stations.csv\n    temperature_3h.csv\n  outputs/\n  01_run_microclimate_beginner.R"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-skriptabschnitte",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-skriptabschnitte",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Skriptabschnitte",
+    "text": "Technik: Skriptabschnitte\nIm Skript sind die Abschnitte nummeriert.\nRelevant für die Sitzung:\n0 Pakete\n1 Pfade\n2 Daten\n3 DEM\n4 Zeitformat\n7 Interpolation\n8 R*\n9 Benchmark\n10 Figuren"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-tabellen-ansehen",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-tabellen-ansehen",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Tabellen ansehen",
+    "text": "Technik: Tabellen ansehen\nIn RStudio:\nstations &lt;- read.csv(\"data/stations.csv\")\ntemp_raw &lt;- read.csv(\"data/temperature_3h.csv\")\nView(stations)\nView(temp_raw)\nWichtig:\nstations.csv: stationid, x, y\ntemperature_3h.csv: Time, S01, S02, ..."
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-dem-im-skript",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-dem-im-skript",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: DEM im Skript",
+    "text": "Technik: DEM im Skript\nDas DEM wird synthetisch erzeugt.\nDEM_render &lt;- terra::rast(...)\nDEM_scale  &lt;- terra::aggregate(DEM_render, fact = 4)\nZwei Raster:\nDEM_render: Karte darstellen\nDEM_scale: Modellskala testen"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-dateien",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-dateien",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Dateien",
+    "text": "Technik: Dateien\nDas Skript schreibt:\noutputs/maps/DEM_render_5m.tif\noutputs/maps/DEM_scale_20m.tif\nIn RStudio prüfen:\nterra::res(DEM_render)\nterra::res(DEM_scale)"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-zeitpunkt-wählen",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-zeitpunkt-wählen",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Zeitpunkt wählen",
+    "text": "Technik: Zeitpunkt wählen\nIm Skript:\ndata_density &lt;- sapply(vars, function(v) sum(is.finite(m[[v]])))\npick_ts &lt;- vars[which.max(data_density)]\nBedeutung:\nNimm den Zeitpunkt mit den meisten gültigen Messwerten."
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-methoden",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-methoden",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Methoden",
+    "text": "Technik: Methoden\nIm Skript:\nidw_predict()\ntrend_predict()\nked_like_predict()\nDie Karten entstehen hier:\nr_idw\nr_trend\nr_ked_like"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-funktion",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-funktion",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Funktion",
+    "text": "Technik: Funktion\nIm Skript:\nked_like_predict &lt;- function(train, newdata) {\n  fit &lt;- lm(value ~ altitude, data = train)\n  train$resid &lt;- residuals(fit)\n  drift &lt;- predict(fit, newdata = newdata)\n  resid_pred &lt;- idw_predict(...)\n  drift + resid_pred\n}"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-r-testen",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-r-testen",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: R testen",
+    "text": "Technik: R testen\nIm Skript:\nR_candidates &lt;- c(20, 40, 80, 120)\nFür jeden Radius:\nDEM glätten\n→ Stationshöhe neu auslesen\n→ Fehler berechnen\n→ besten Radius wählen"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-benchmark",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-benchmark",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Benchmark",
+    "text": "Technik: Benchmark\nIm Skript:\nbench &lt;- data.frame(\n  method = c(\"mean\", \"trend\", \"idw\", \"ked_like\"),\n  RMSE = c(...)\n)\nAusgabe:\noutputs/summary/benchmark_methods.csv"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-output-prüfen",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-output-prüfen",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Output prüfen",
+    "text": "Technik: Output prüfen\nNach dem Lauf öffnen:\noutputs/fig/temperature_interpolation_panel.png\noutputs/fig/R_tuning_curve.png\noutputs/fig/benchmark_methods.png\noutputs/summary/R_tuning_results.csv\noutputs/summary/benchmark_methods.csv\noutputs/maps/*.tif"
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-konsole-lesen",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-konsole-lesen",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Konsole lesen",
+    "text": "Technik: Konsole lesen\nAm Ende steht in der Konsole:\nTimestamp\nStations used\nR*\nBest method\nOutputs written to\nDiese vier Zeilen reichen für die Ergebnisdiskussion."
+  },
+  {
+    "objectID": "slides/microclimate_beginner_revealjs.html#technik-was-wurde-vereinfacht",
+    "href": "slides/microclimate_beginner_revealjs.html#technik-was-wurde-vereinfacht",
+    "title": "Mikroklima-Interpolation verstehen",
+    "section": "Technik: Was wurde vereinfacht?",
+    "text": "Technik: Was wurde vereinfacht?\nBewusst reduziert:\nkleine CSV statt Excel-Logger\nsynthetisches DEM statt externer Rasterdaten\nein Zeitpunkt statt kompletter Zeitreihe\nKED-ähnlich statt voller Geostatistik\nPNG/GeoTIFF statt Shiny-Pflicht"
+  }
+]
