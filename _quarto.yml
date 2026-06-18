@@ -1,13 +1,86 @@
 project:
   type: website
-  output-dir: docs
+  output-dir: docs/
+  render:
+    - "index.qmd"
+    - "pages/*.qmd"
+    - "slides/*.qmd"
+    - "scripts/*.R"
 
 website:
-  title: "Harz Warmup"
+  title: "R-spatial in a nutshell"
+  favicon: /images/logo.png
+  bread-crumbs: false
+  open-graph: true
+  page-navigation: true
+  site-url: https://gisma-courses.github.io/harz-warmup
+  repo-url: https://github.com/gisma-courses/harz-warmup
+  repo-actions: [edit, issue]
+  repo-branch: main
+
+  search:
+    location: navbar
+    type: textbox
+
+  twitter-card:
+    creator: "@gisma"
+
+  comments: false
+
+  navbar:
+    logo: /images/logo.png
+    right:
+      - text: "Inhalte"
+        menu:
+          - icon: book
+            href: pages/microclimate_warmup_reader.qmd
+            text: Mikroklima-Warmup Reader
+      - text: "Slides"
+        menu:
+          - icon: easel
+            href: slides/microclimate_warmup_models_revealjs.qmd
+            text: Mikroklima-Warmup Foliensatz
+
+  sidebar:
+    - title: "R-spatial in a nutshell"
+      style: "docked"
+      collapse-level: 1
+      pinned: true
+      contents:
+        - href: index.qmd
+          text: Start
+        - text: "---"
+        - section: "Inhalte"
+          contents:
+            - href: pages/microclimate_warmup_reader.qmd
+              text: Mikroklima-Warmup Reader
+        - text: "---"
+        - section: "Slides"
+          contents:
+            - href: slides/microclimate_warmup_models_revealjs.qmd
+              text: Mikroklima-Warmup Foliensatz
+
+execute:
+  freeze: auto
+  echo: false
+  message: false
+  warning: false
+  cache: false
 
 format:
   html:
+    code-overflow: wrap
+    toc-title: "Inhalt"
+    number-sections: false
+    highlight-style: github
+    theme:
+      light: cerulean
+      dark: lumen
+    code-copy: true
     toc: true
+    link-external-icon: false
+    link-external-newwindow: true
+
   revealjs:
     theme:
       - default

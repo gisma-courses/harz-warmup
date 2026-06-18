@@ -1,100 +1,353 @@
 [
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-start",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-start",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Start",
-    "text": "Technik: Start\n\nZIP entpacken\n\nmicroclimate_beginner.Rproj öffnen\n\n01_run_microclimate_beginner.R öffnen\n\nBlöcke mit Strg + Enter ausführen\n\nErgebnisse in outputs/ prüfen"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#technischer-einstieg",
+    "href": "slides/microclimate_warmup_models_revealjs.html#technischer-einstieg",
+    "title": "Mikroklima-Warmup",
+    "section": "Technischer Einstieg",
+    "text": "Technischer Einstieg\nProjekt-ZIP herunterladen:\nProjekt herunterladen\nDann:\nZIP entpacken\n.Rproj-Datei im entpackten Projektordner öffnen\nSkript im Ordner scripts/ öffnen\nDas Skript liegt im Projekt unter:\nscripts/microclimate_warmup_minimal_kommentiert.R\nSkript separat:\nR-Skript herunterladen",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-daten-im-projekt",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-daten-im-projekt",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Daten im Projekt",
-    "text": "Technik: Daten im Projekt\nOrdnerstruktur:\nmicroclimate_beginner/\n  data/\n    stations.csv\n    temperature_3h.csv\n  outputs/\n  01_run_microclimate_beginner.R"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#fachlicher-kontext",
+    "href": "slides/microclimate_warmup_models_revealjs.html#fachlicher-kontext",
+    "title": "Mikroklima-Warmup",
+    "section": "Fachlicher Kontext",
+    "text": "Fachlicher Kontext\nMikroklima variiert kleinräumig.\nMögliche Einflussgrößen:\nHöhe\nGeländeform\nVegetation\nVerschattung\nBodenbedeckung\nKaltluft\nDiese Übung reduziert den Fall bewusst auf Temperatur und Höhe.",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-skriptabschnitte",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-skriptabschnitte",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Skriptabschnitte",
-    "text": "Technik: Skriptabschnitte\nIm Skript sind die Abschnitte nummeriert.\nRelevant für die Sitzung:\n0 Pakete\n1 Pfade\n2 Daten\n3 DEM\n4 Zeitformat\n7 Interpolation\n8 R*\n9 Benchmark\n10 Figuren"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-daten-laden",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-daten-laden",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: Daten laden",
+    "text": "Code: Daten laden\nlibrary(sf)\nlibrary(terra)\nlibrary(gstat)\nlibrary(randomForest)\n\nm   &lt;- readRDS(\"data/climdata.rds\")\ndem &lt;- rast(\"data/DEM1.tif\")\nnames(dem) &lt;- \"altitude\"",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-tabellen-ansehen",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-tabellen-ansehen",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Tabellen ansehen",
-    "text": "Technik: Tabellen ansehen\nIn RStudio:\nstations &lt;- read.csv(\"data/stations.csv\")\ntemp_raw &lt;- read.csv(\"data/temperature_3h.csv\")\nView(stations)\nView(temp_raw)\nWichtig:\nstations.csv: stationid, x, y\ntemperature_3h.csv: Time, S01, S02, ..."
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-zielvariable-setzen",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-zielvariable-setzen",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: Zielvariable setzen",
+    "text": "Code: Zielvariable setzen\nm$temp &lt;- m[[\"A20230830\"]]",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-dem-im-skript",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-dem-im-skript",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: DEM im Skript",
-    "text": "Technik: DEM im Skript\nDas DEM wird synthetisch erzeugt.\nDEM_render &lt;- terra::rast(...)\nDEM_scale  &lt;- terra::aggregate(DEM_render, fact = 4)\nZwei Raster:\nDEM_render: Karte darstellen\nDEM_scale: Modellskala testen"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-crs-und-stationshöhe",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-crs-und-stationshöhe",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: CRS und Stationshöhe",
+    "text": "Code: CRS und Stationshöhe\nm &lt;- st_transform(m, crs(dem))\nm$altitude &lt;- terra::extract(dem, terra::vect(m))$altitude\n\npts &lt;- m[!is.na(m$temp) & !is.na(m$altitude),\n         c(\"temp\", \"altitude\")]",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-dateien",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-dateien",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Dateien",
-    "text": "Technik: Dateien\nDas Skript schreibt:\noutputs/maps/DEM_render_5m.tif\noutputs/maps/DEM_scale_20m.tif\nIn RStudio prüfen:\nterra::res(DEM_render)\nterra::res(DEM_scale)"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-aussagefläche",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-aussagefläche",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: Aussagefläche",
+    "text": "Code: Aussagefläche\narea &lt;- st_sf(\n  geometry = st_buffer(\n    st_convex_hull(st_union(st_geometry(pts))),\n    20\n  )\n)\n\ndem &lt;- crop(dem, vect(area))\ndem &lt;- mask(dem, vect(area))\nnames(dem) &lt;- \"altitude\"",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-zeitpunkt-wählen",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-zeitpunkt-wählen",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Zeitpunkt wählen",
-    "text": "Technik: Zeitpunkt wählen\nIm Skript:\ndata_density &lt;- sapply(vars, function(v) sum(is.finite(m[[v]])))\npick_ts &lt;- vars[which.max(data_density)]\nBedeutung:\nNimm den Zeitpunkt mit den meisten gültigen Messwerten."
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-rasterzellen-als-zielorte",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-rasterzellen-als-zielorte",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: Rasterzellen als Zielorte",
+    "text": "Code: Rasterzellen als Zielorte\ngrid &lt;- as.data.frame(dem, xy = TRUE, cells = TRUE, na.rm = FALSE)\nnames(grid)[4] &lt;- \"altitude\"\ngrid &lt;- grid[!is.na(grid$altitude), ]\n\ngrid_sf &lt;- st_as_sf(\n  grid,\n  coords = c(\"x\", \"y\"),\n  crs = st_crs(pts),\n  remove = FALSE\n)",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-methoden",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-methoden",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Methoden",
-    "text": "Technik: Methoden\nIm Skript:\nidw_predict()\ntrend_predict()\nked_like_predict()\nDie Karten entstehen hier:\nr_idw\nr_trend\nr_ked_like"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-voronoi-nearest-station",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-voronoi-nearest-station",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: Voronoi / nearest station",
+    "text": "Code: Voronoi / nearest station\nvor_df &lt;- gstat::idw(\n  temp ~ 1,\n  locations = pts,\n  newdata = grid_sf,\n  nmax = 1\n)\n\nmap_vor &lt;- make_map(vor_df$var1.pred, \"Voronoi\")",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-funktion",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-funktion",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Funktion",
-    "text": "Technik: Funktion\nIm Skript:\nked_like_predict &lt;- function(train, newdata) {\n  fit &lt;- lm(value ~ altitude, data = train)\n  train$resid &lt;- residuals(fit)\n  drift &lt;- predict(fit, newdata = newdata)\n  resid_pred &lt;- idw_predict(...)\n  drift + resid_pred\n}"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-idw",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-idw",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: IDW",
+    "text": "Code: IDW\nidw_df &lt;- gstat::idw(\n  temp ~ 1,\n  locations = pts,\n  newdata = grid_sf,\n  nmax = 4\n)\n\nmap_idw &lt;- make_map(idw_df$var1.pred, \"IDW\")",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-r-testen",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-r-testen",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: R testen",
-    "text": "Technik: R testen\nIm Skript:\nR_candidates &lt;- c(20, 40, 80, 120)\nFür jeden Radius:\nDEM glätten\n→ Stationshöhe neu auslesen\n→ Fehler berechnen\n→ besten Radius wählen"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-lm-altitude",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-lm-altitude",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: LM altitude",
+    "text": "Code: LM altitude\nfit_lm &lt;- lm(temp ~ altitude, data = st_drop_geometry(pts))\n\nmap_lm &lt;- predict(dem, fit_lm)\nnames(map_lm) &lt;- \"LM_altitude\"",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-benchmark",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-benchmark",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Benchmark",
-    "text": "Technik: Benchmark\nIm Skript:\nbench &lt;- data.frame(\n  method = c(\"mean\", \"trend\", \"idw\", \"ked_like\"),\n  RMSE = c(...)\n)\nAusgabe:\noutputs/summary/benchmark_methods.csv"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-rf-warning",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-rf-warning",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: RF warning",
+    "text": "Code: RF warning\nxy &lt;- st_coordinates(pts)\npts$x &lt;- xy[, 1]\npts$y &lt;- xy[, 2]\n\nfit_rf &lt;- randomForest(\n  temp ~ x + y + altitude,\n  data = st_drop_geometry(pts),\n  ntree = 200\n)\n\nrf_pred &lt;- predict(fit_rf, newdata = grid)\nmap_rf &lt;- make_map(rf_pred, \"RF_warning\")",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-output-prüfen",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-output-prüfen",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Output prüfen",
-    "text": "Technik: Output prüfen\nNach dem Lauf öffnen:\noutputs/fig/temperature_interpolation_panel.png\noutputs/fig/R_tuning_curve.png\noutputs/fig/benchmark_methods.png\noutputs/summary/R_tuning_results.csv\noutputs/summary/benchmark_methods.csv\noutputs/maps/*.tif"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#rmse",
+    "href": "slides/microclimate_warmup_models_revealjs.html#rmse",
+    "title": "Mikroklima-Warmup",
+    "section": "RMSE",
+    "text": "RMSE\n\\[\nRMSE = \\sqrt{\\frac{1}{n}\\sum_{i=1}^{n}(\\hat{y}_i - y_i)^2}\n\\]\nRMSE misst Rückschätzfehler an Stationsorten.\nRMSE beweist nicht die fachliche Gültigkeit der ganzen Ergebnisfläche.",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-konsole-lesen",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-konsole-lesen",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Konsole lesen",
-    "text": "Technik: Konsole lesen\nAm Ende steht in der Konsole:\nTimestamp\nStations used\nR*\nBest method\nOutputs written to\nDiese vier Zeilen reichen für die Ergebnisdiskussion."
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-loocv-für-lm-und-rf",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-loocv-für-lm-und-rf",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: LOOCV für LM und RF",
+    "text": "Code: LOOCV für LM und RF\nrmse_fun &lt;- function(e) sqrt(mean(e * e, na.rm = TRUE))\n\nlm_cv &lt;- rep(NA, nrow(pts))\nrf_cv &lt;- rep(NA, nrow(pts))\n\nfor (i in 1:nrow(pts)) {\n  train &lt;- pts[-i, ]\n  test  &lt;- pts[i, ]\n\n  fit_lm_i &lt;- lm(temp ~ altitude, data = st_drop_geometry(train))\n  lm_cv[i] &lt;- predict(fit_lm_i, newdata = st_drop_geometry(test))\n\n  fit_rf_i &lt;- randomForest(\n    temp ~ x + y + altitude,\n    data = st_drop_geometry(train),\n    ntree = 200\n  )\n  rf_cv[i] &lt;- predict(fit_rf_i, newdata = st_drop_geometry(test))\n}",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
   },
   {
-    "objectID": "slides/microclimate_beginner_revealjs.html#technik-was-wurde-vereinfacht",
-    "href": "slides/microclimate_beginner_revealjs.html#technik-was-wurde-vereinfacht",
-    "title": "Mikroklima-Interpolation verstehen",
-    "section": "Technik: Was wurde vereinfacht?",
-    "text": "Technik: Was wurde vereinfacht?\nBewusst reduziert:\nkleine CSV statt Excel-Logger\nsynthetisches DEM statt externer Rasterdaten\nein Zeitpunkt statt kompletter Zeitreihe\nKED-ähnlich statt voller Geostatistik\nPNG/GeoTIFF statt Shiny-Pflicht"
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-gstat.cv",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-gstat.cv",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: gstat.cv",
+    "text": "Code: gstat.cv\nvor_model &lt;- gstat(\n  temp ~ 1,\n  locations = pts,\n  nmax = 1,\n  set = list(idp = 2)\n)\n\nidw_model &lt;- gstat(\n  temp ~ 1,\n  locations = pts,\n  nmax = 4,\n  set = list(idp = 2)\n)\n\nvor_cv &lt;- gstat.cv(vor_model, nfold = nrow(pts))\nidw_cv &lt;- gstat.cv(idw_model, nfold = nrow(pts))",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
+  },
+  {
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-rmse-berechnen",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-rmse-berechnen",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: RMSE berechnen",
+    "text": "Code: RMSE berechnen\nrmse &lt;- data.frame(\n  model = c(\"LM altitude\", \"Voronoi\", \"IDW\", \"RF warning\"),\n  RMSE = c(\n    rmse_fun(pts$temp - lm_cv),\n    rmse_fun(vor_cv$residual),\n    rmse_fun(idw_cv$residual),\n    rmse_fun(pts$temp - rf_cv)\n  )\n)\n\nprint(rmse)",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
+  },
+  {
+    "objectID": "slides/microclimate_warmup_models_revealjs.html#code-darstellung",
+    "href": "slides/microclimate_warmup_models_revealjs.html#code-darstellung",
+    "title": "Mikroklima-Warmup",
+    "section": "Code: Darstellung",
+    "text": "Code: Darstellung\nmaps &lt;- c(map_vor, map_idw, map_lm, map_rf)\nz &lt;- range(c(pts$temp - 1, pts$temp + 1), na.rm = TRUE)\n\npar(mfrow = c(2, 2))\n\nfor (i in 1:nlyr(maps)) {\n  plot(maps[[i]], range = z, main = names(maps)[i])\n  points(pts, pch = 19, cex = 0.8)\n}\n\npar(mfrow = c(1, 1))",
+    "crumbs": [
+      "Slides",
+      "Mikroklima-Warmup Foliensatz"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "R-spatial in a nutshell",
+    "section": "",
+    "text": "Dieser Hands-on-Schnellkurs führt in räumliches Arbeiten mit R und Rstudio ein, indem einfache Skripte ausgeführt, gelesen und schrittweise verstanden werden.\nSkripte sind wichtig, weil räumliche Analysen dadurch reproduzierbar bleiben: Daten, Parameter, Zwischenschritte und Karten entstehen nicht als einmaliger Klickweg, sondern als nachvollziehbare Arbeitskette.\nGerade bei Massendaten, wiederholten Auswertungen und wechselnden Untersuchungsräumen ist dieser Zugang robuster, anpassbarer und besser dokumentierbar als eine rein manuelle Bearbeitung.",
+    "crumbs": [
+      "Start"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html",
+    "href": "pages/microclimate_warmup_reader.html",
+    "title": "Mikroklima-Warmup",
+    "section": "",
+    "text": "Dieser Reader begleitet einen Hands-on-Einstieg in räumliches Arbeiten mit R und RStudio. Im Mittelpunkt steht ein überschaubares Skript: Es wird geöffnet, blockweise ausgeführt und so gelesen, dass nachvollziehbar wird, welche Daten eingelesen werden, welche räumlichen Operationen stattfinden und welche Ergebnisdatensätze daraus entstehen.\nFachlich geht es um ein typisches Problem der Geoinformatik und physischen Geographie: Messungen liegen punktuell vor, die Fragestellung richtet sich aber auf eine Fläche. Aus einzelnen Temperaturmessungen verteilter Messstationen soll eine räumliche Ergebnisfläche entstehen. Genau an dieser Stelle beginnt Interpolation beziehungsweise allgemeiner: raumfüllende Modellierung.\nDie Übung ist zugleich technisch und inhaltlich angelegt. Technisch geht es darum, mit RStudio ein Skript auszuführen, einfache räumliche Datenobjekte zu verarbeiten und Ergebnisraster zu erzeugen. Inhaltlich geht es darum zu verstehen, dass jede flächenhafte Darstellung aus Punktdaten eine Annahme darüber enthält, wie Werte zwischen Messpunkten in den Raum übertragen werden.\nDie zentrale Frage lautet:\n\nWie wird aus punktuellen Messungen ein flächenhafter Ergebnisdatensatz, und wo endet dessen Gültigkeit?",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#voronoi",
+    "href": "pages/microclimate_warmup_reader.html#voronoi",
+    "title": "Mikroklima-Warmup",
+    "section": "Voronoi",
+    "text": "Voronoi\nVoronoi ordnet jede Rasterzelle der nächstgelegenen Messstation zu. Der Wert dieser Station wird direkt auf die Zelle übertragen.\nKurzlogik:\n\nNächste Station gewinnt.\n\nDamit entsteht ein Ergebnisraster mit harten Grenzen. Jede Station erhält einen Zuständigkeitsbereich. Innerhalb dieses Bereichs ist der Wert überall gleich, an der Grenze zur nächsten Station springt er abrupt.\nVoronoi ist methodisch einfach und gut lesbar. Es glättet nichts und erzeugt keine Zwischenwerte. Gleichzeitig ist die Annahme sehr grob: Temperatur ändert sich in der Realität selten sprunghaft an geometrischen Grenzen zwischen Stationen.\n\n\n\n\n\n\nNoteCode-Snippet: Voronoi / nearest station\n\n\n\n\n\nvor_df &lt;- gstat::idw(\n  temp ~ 1,\n  locations = pts,\n  newdata = grid_sf,\n  nmax = 1\n)\n\nmap_vor &lt;- make_map(vor_df$var1.pred, \"Voronoi\")",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#idw",
+    "href": "pages/microclimate_warmup_reader.html#idw",
+    "title": "Mikroklima-Warmup",
+    "section": "IDW",
+    "text": "IDW\nIDW bedeutet inverse distance weighting. Das Verfahren schätzt den Wert einer Rasterzelle aus nahegelegenen Stationen. Nahe Stationen erhalten ein höheres Gewicht, weiter entfernte Stationen ein geringeres Gewicht.\nKurzlogik:\n\nNähe wirkt, aber nicht hart. Nahe Messpunkte zählen stärker als entfernte.\n\nIm Skript wird nmax = 4 verwendet. Jede Rasterzelle wird also nur aus den vier nächsten Stationen geschätzt. Dadurch bleibt die Schätzung lokal. Das Ergebnis wird glatter als Voronoi, aber weniger global geglättet als eine IDW-Variante, bei der alle Stationen in jede Schätzung eingehen.\nIDW ist eine typische Einstiegsform der Interpolation. Es nutzt räumliche Nähe als zentrales Argument. Fachlich muss man aber prüfen, ob Nähe im konkreten Fall tatsächlich der wichtigste Zusammenhang ist. Bei Mikroklima kann das zutreffen, muss aber nicht ausreichen, weil Gelände, Schatten, Vegetation oder Kaltluft ebenfalls wirksam sein können.\n\n\n\n\n\n\nNoteCode-Snippet: IDW\n\n\n\n\n\nidw_df &lt;- gstat::idw(\n  temp ~ 1,\n  locations = pts,\n  newdata = grid_sf,\n  nmax = 4\n)\n\nmap_idw &lt;- make_map(idw_df$var1.pred, \"IDW\")",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#lm-altitude",
+    "href": "pages/microclimate_warmup_reader.html#lm-altitude",
+    "title": "Mikroklima-Warmup",
+    "section": "LM altitude",
+    "text": "LM altitude\nDas lineare Höhenmodell nutzt nicht primär die räumliche Nähe zwischen Stationen, sondern den Zusammenhang zwischen Temperatur und Höhe.\nKurzlogik:\n\nTemperatur wird über Höhe erklärt und auf das Höhenraster übertragen.\n\nDas Modell schätzt eine lineare Beziehung zwischen Stationshöhe und Temperatur. Anschließend wird diese Beziehung auf jede Rasterzelle des DEM angewendet. Dadurch folgt das Ergebnis stark dem Höhenmuster.\nDieses Modell ist methodisch anders als Voronoi und IDW. Es füllt den Raum nicht über Stationsnachbarschaft, sondern über eine erklärende Variable. Wenn Höhe fachlich relevant ist, kann das sinnvoll sein. Wenn die gemessenen Temperaturunterschiede stärker durch Schatten, Vegetation oder lokale Kaltluft geprägt sind, kann ein reines Höhenmodell zu kurz greifen.\nJa, der Abschnitt verschiebt die Aufmerksamkeit zu stark auf x/y/altitude und sagt zu wenig klar: RF sagt weiterhin Temperatur vorher. Die Koordinaten und die Höhe sind nur die Eingangsvariablen, mit denen RF versucht, die gemessene Temperatur zu rekonstruieren.\nErsetze den Abschnitt durch diese Fassung:\n\n\n\n\n\n\nNoteCode-Snippet: LM altitude\n\n\n\n\n\nfit_lm &lt;- lm(temp ~ altitude, data = st_drop_geometry(pts))\n\nmap_lm &lt;- predict(dem, fit_lm)\nnames(map_lm) &lt;- \"LM_altitude\"",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#rf-warning",
+    "href": "pages/microclimate_warmup_reader.html#rf-warning",
+    "title": "Mikroklima-Warmup",
+    "section": "RF warning",
+    "text": "RF warning\nRandom Forest ist ein flexibles, datengetriebenes Modell. Im Skript ist die Zielvariable weiterhin die gemessene Temperatur:\ntemp\nDas Modell versucht also, Temperaturwerte vorherzusagen. Dafür erhält es drei Prädiktoren:\nx\ny\naltitude\nDamit kann RF Temperaturunterschiede aus räumlicher Position und Höhe ableiten. Das Modell fragt nicht direkt nach einem physikalischen Prozess wie Kaltluft, Verschattung oder Vegetationswirkung. Es sucht in den vorhandenen Trainingsdaten nach Mustern: Welche Kombinationen aus Lage und Höhe treten zusammen mit höheren oder niedrigeren Temperaturen auf?\nKurzlogik:\n\nRF lernt aus wenigen Stationen, welche Bereiche des Raums eher zu höheren oder niedrigeren Temperaturwerten passen.\n\nGenau deshalb wird RF hier als Warnbeispiel geführt. Bei wenigen Messpunkten kann das Modell die vorhandenen Temperaturwerte scheinbar gut rekonstruieren, weil es die Punktlage und die Höhe flexibel aufteilt. Daraus entsteht ein Ergebnisraster, das plausibel aussehen und in der Validierung einen niedrigen Fehler haben kann.\nDas bedeutet aber nicht automatisch, dass RF eine robuste mikroklimatische Erklärung gefunden hat. Das Modell kann Temperaturmuster erzeugen, die stark an die konkrete Lage der wenigen Messstationen gebunden sind. Eine gute Rückschätzung einzelner Stationen bedeutet deshalb nicht, dass die Ergebnisfläche als Prozessdarstellung fachlich überzeugend ist.\nRF zeigt hier eine zentrale methodische Spannung:\n\nDas Modell sagt Temperatur vorher, aber es erklärt nicht automatisch, warum diese Temperatur räumlich so verteilt sein sollte.\n\n\n\n\n\n\n\nNoteCode-Snippet: RF warning\n\n\n\n\n\nxy &lt;- st_coordinates(pts)\npts$x &lt;- xy[, 1]\npts$y &lt;- xy[, 2]\n\nfit_rf &lt;- randomForest(\n  temp ~ x + y + altitude,\n  data = st_drop_geometry(pts),\n  ntree = 200\n)\n\nrf_pred &lt;- predict(fit_rf, newdata = grid)\nmap_rf &lt;- make_map(rf_pred, \"RF_warning\")",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#daten-laden",
+    "href": "pages/microclimate_warmup_reader.html#daten-laden",
+    "title": "Mikroklima-Warmup",
+    "section": "1. Daten laden",
+    "text": "1. Daten laden\nBenötigt werden zwei Dateien: data/climdata.rds und data/DEM1.tif. climdata.rds enthält die Messstationen mit Geometrie und Temperaturspalten. DEM1.tif enthält die Höhe als Raster.\n\n\n\n\n\n\nNoteCode-Snippet: Daten laden\n\n\n\n\n\nlibrary(sf)\nlibrary(terra)\nlibrary(gstat)\nlibrary(randomForest)\n\nm   &lt;- readRDS(\"data/climdata.rds\")\ndem &lt;- rast(\"data/DEM1.tif\")\nnames(dem) &lt;- \"altitude\"",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#einen-zeitpunkt-auswählen",
+    "href": "pages/microclimate_warmup_reader.html#einen-zeitpunkt-auswählen",
+    "title": "Mikroklima-Warmup",
+    "section": "2. Einen Zeitpunkt auswählen",
+    "text": "2. Einen Zeitpunkt auswählen\nDie Messdaten enthalten mehrere Temperaturspalten. Für den Warmup wird ein Zeitpunkt herausgegriffen. Damit arbeiten alle Modelle mit derselben Zielvariable.\n\n\n\n\n\n\nNoteCode-Snippet: Temperaturspalte setzen\n\n\n\n\n\nm$temp &lt;- m[[\"A20230830\"]]",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#koordinatensystem-angleichen",
+    "href": "pages/microclimate_warmup_reader.html#koordinatensystem-angleichen",
+    "title": "Mikroklima-Warmup",
+    "section": "3. Koordinatensystem angleichen",
+    "text": "3. Koordinatensystem angleichen\nStationsdaten und DEM müssen im selben Koordinatensystem liegen. Das ist Voraussetzung für korrekte Höhenextraktion, Distanzen und Rasterüberlagerung.\n\n\n\n\n\n\nNoteCode-Snippet: CRS angleichen\n\n\n\n\n\nm &lt;- st_transform(m, crs(dem))",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#höhe-an-den-stationen-extrahieren",
+    "href": "pages/microclimate_warmup_reader.html#höhe-an-den-stationen-extrahieren",
+    "title": "Mikroklima-Warmup",
+    "section": "4. Höhe an den Stationen extrahieren",
+    "text": "4. Höhe an den Stationen extrahieren\nDie Stationshöhen werden direkt aus dem verwendeten DEM gezogen. Dadurch nutzen Stationsmodell und Ergebnisraster dieselbe Höhenbasis.\n\n\n\n\n\n\nNoteCode-Snippet: Höhe extrahieren\n\n\n\n\n\nm$altitude &lt;- terra::extract(dem, terra::vect(m))$altitude",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#gültige-messpunkte-auswählen",
+    "href": "pages/microclimate_warmup_reader.html#gültige-messpunkte-auswählen",
+    "title": "Mikroklima-Warmup",
+    "section": "5. Gültige Messpunkte auswählen",
+    "text": "5. Gültige Messpunkte auswählen\nEs bleiben nur Stationen mit Temperaturwert und Höhenwert. Unvollständige Punkte werden aus der Modellierung entfernt.\n\n\n\n\n\n\nNoteCode-Snippet: vollständige Punkte wählen\n\n\n\n\n\npts &lt;- m[!is.na(m$temp) & !is.na(m$altitude), c(\"temp\", \"altitude\")]",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#aussagefläche-erzeugen",
+    "href": "pages/microclimate_warmup_reader.html#aussagefläche-erzeugen",
+    "title": "Mikroklima-Warmup",
+    "section": "6. Aussagefläche erzeugen",
+    "text": "6. Aussagefläche erzeugen\nDie Stationen definieren den Bereich, in dem die Ergebnisse ausgegeben werden. Das DEM wird auf Convex Hull plus 20 m zugeschnitten und maskiert.\n\n\n\n\n\n\nNoteCode-Snippet: Aussagefläche und DEM-Maske\n\n\n\n\n\narea &lt;- st_sf(\n  geometry = st_buffer(\n    st_convex_hull(st_union(st_geometry(pts))),\n    20\n  )\n)\n\ndem &lt;- crop(dem, vect(area))\ndem &lt;- mask(dem, vect(area))\nnames(dem) &lt;- \"altitude\"",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#vorhersagegrid-erzeugen",
+    "href": "pages/microclimate_warmup_reader.html#vorhersagegrid-erzeugen",
+    "title": "Mikroklima-Warmup",
+    "section": "7. Vorhersagegrid erzeugen",
+    "text": "7. Vorhersagegrid erzeugen\nAus dem DEM wird eine Tabelle mit Rasterzellen, Koordinaten und Höhe gebaut. Diese Tabelle ist die technische Brücke zwischen Raster und Modell.\n\n\n\n\n\n\nNoteCode-Snippet: Vorhersagegrid\n\n\n\n\n\ngrid &lt;- as.data.frame(dem, xy = TRUE, cells = TRUE, na.rm = FALSE)\nnames(grid)[4] &lt;- \"altitude\"\ngrid &lt;- grid[!is.na(grid$altitude), ]\n\ngrid_sf &lt;- st_as_sf(\n  grid,\n  coords = c(\"x\", \"y\"),\n  crs = st_crs(pts),\n  remove = FALSE\n)",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#ergebnisraster-berechnen",
+    "href": "pages/microclimate_warmup_reader.html#ergebnisraster-berechnen",
+    "title": "Mikroklima-Warmup",
+    "section": "8. Ergebnisraster berechnen",
+    "text": "8. Ergebnisraster berechnen\nDas Skript erzeugt vier Ergebnisraster. Alle verwenden dieselbe Aussagefläche. Der Unterschied liegt in der Modellannahme.\n\n\n\n\n\n\nNoteCode-Snippet: Ergebnisraster berechnen\n\n\n\n\n\nmake_map &lt;- function(pred, name) {\n  r &lt;- dem\n  values(r) &lt;- NA\n  values(r)[grid$cell] &lt;- pred\n  names(r) &lt;- name\n  r\n}\n\nxy &lt;- st_coordinates(pts)\npts$x &lt;- xy[, 1]\npts$y &lt;- xy[, 2]\n\nfit_lm &lt;- lm(temp ~ altitude, data = st_drop_geometry(pts))\nmap_lm &lt;- predict(dem, fit_lm)\nnames(map_lm) &lt;- \"LM_altitude\"\n\nvor_df &lt;- gstat::idw(temp ~ 1, locations = pts, newdata = grid_sf, nmax = 1)\nmap_vor &lt;- make_map(vor_df$var1.pred, \"Voronoi\")\n\nidw_df &lt;- gstat::idw(temp ~ 1, locations = pts, newdata = grid_sf, nmax = 4)\nmap_idw &lt;- make_map(idw_df$var1.pred, \"IDW\")\n\nfit_rf &lt;- randomForest(\n  temp ~ x + y + altitude,\n  data = st_drop_geometry(pts),\n  ntree = 200\n)\n\nrf_pred &lt;- predict(fit_rf, newdata = grid)\nmap_rf &lt;- make_map(rf_pred, \"RF_warning\")",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#modelle-validieren",
+    "href": "pages/microclimate_warmup_reader.html#modelle-validieren",
+    "title": "Mikroklima-Warmup",
+    "section": "9. Modelle validieren",
+    "text": "9. Modelle validieren\nDie Modelle werden mit Leave-One-Out-Cross-Validation geprüft. Jede Station wird einmal ausgelassen und aus den übrigen Stationen zurückgeschätzt.\n\n\n\n\n\n\nNoteCode-Snippet: LOOCV und RMSE\n\n\n\n\n\nrmse_fun &lt;- function(e) sqrt(mean(e * e, na.rm = TRUE))\n\nlm_cv &lt;- rep(NA, nrow(pts))\nrf_cv &lt;- rep(NA, nrow(pts))\n\nfor (i in 1:nrow(pts)) {\n  train &lt;- pts[-i, ]\n  test  &lt;- pts[i, ]\n\n  fit_lm_i &lt;- lm(temp ~ altitude, data = st_drop_geometry(train))\n  lm_cv[i] &lt;- predict(fit_lm_i, newdata = st_drop_geometry(test))\n\n  fit_rf_i &lt;- randomForest(\n    temp ~ x + y + altitude,\n    data = st_drop_geometry(train),\n    ntree = 200\n  )\n  rf_cv[i] &lt;- predict(fit_rf_i, newdata = st_drop_geometry(test))\n}\n\nvor_model &lt;- gstat::gstat(\n  formula = temp ~ 1,\n  locations = pts,\n  nmax = 1,\n  set = list(idp = 2)\n)\n\nvor_cv &lt;- gstat::gstat.cv(vor_model, nfold = nrow(pts))\n\nidw_model &lt;- gstat::gstat(\n  formula = temp ~ 1,\n  locations = pts,\n  nmax = 4,\n  set = list(idp = 2)\n)\n\nidw_cv &lt;- gstat::gstat.cv(idw_model, nfold = nrow(pts))\n\nrmse &lt;- data.frame(\n  model = c(\"LM altitude\", \"Voronoi\", \"IDW\", \"RF warning\"),\n  RMSE = c(\n    rmse_fun(pts$temp - lm_cv),\n    rmse_fun(vor_cv$residual),\n    rmse_fun(idw_cv$residual),\n    rmse_fun(pts$temp - rf_cv)\n  )\n)",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
+  },
+  {
+    "objectID": "pages/microclimate_warmup_reader.html#ergebnisraster-darstellen",
+    "href": "pages/microclimate_warmup_reader.html#ergebnisraster-darstellen",
+    "title": "Mikroklima-Warmup",
+    "section": "10. Ergebnisraster darstellen",
+    "text": "10. Ergebnisraster darstellen\nDie vier Ergebnisraster werden nebeneinander dargestellt. Alle verwenden dieselbe Farbskala, damit die räumlichen Muster vergleichbar bleiben.\n\n\n\n\n\n\nNoteCode-Snippet: Ergebnisraster darstellen\n\n\n\n\n\nmaps &lt;- c(map_vor, map_idw, map_lm, map_rf)\nz &lt;- range(c(pts$temp - 1, pts$temp + 1), na.rm = TRUE)\n\npar(mfrow = c(2, 2))\n\nfor (i in 1:nlyr(maps)) {\n  plot(maps[[i]], range = z, main = names(maps)[i])\n  points(pts, pch = 19, cex = 0.8)\n}\n\npar(mfrow = c(1, 1))\n\nprint(rmse)",
+    "crumbs": [
+      "Inhalte",
+      "Mikroklima-Warmup Reader"
+    ]
   }
 ]

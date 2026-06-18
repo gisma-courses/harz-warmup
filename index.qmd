@@ -1,0 +1,24 @@
+---
+title: "R-spatial in a nutshell"
+subtitle: "R-spatial in a nutshell"
+order: 10
+title-block-banner: ../images/placeholder.png
+title-block-banner-color: black
+#page-layout: full
+#format-links: [html, pdf, docx]
+format:
+  html:
+    toc: false
+    code-fold: false
+    number-sections: false
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+Dieser Hands-on-Schnellkurs führt in räumliches Arbeiten mit R und Rstudio ein, indem einfache Skripte ausgeführt, gelesen und schrittweise verstanden werden.
+
+Skripte sind wichtig, weil räumliche Analysen dadurch reproduzierbar bleiben: Daten, Parameter, Zwischenschritte und Karten entstehen nicht als einmaliger Klickweg, sondern als nachvollziehbare Arbeitskette.
+
+Gerade bei Massendaten, wiederholten Auswertungen und wechselnden Untersuchungsräumen ist dieser Zugang robuster, anpassbarer und besser dokumentierbar als eine rein manuelle Bearbeitung.
