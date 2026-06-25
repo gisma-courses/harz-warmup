@@ -36,7 +36,7 @@ Die zentrale Frage lautet:
 
 Für die Übung wird das komplette RStudio-Projekt als ZIP-Datei bereitgestellt:
 
-[**Projekt-ZIP herunterladen**](../assetts/archib.zip){download="archib.zip"}
+[**Projekt-ZIP herunterladen**](../assetts/archiv.zip){download="archib.zip"}
 
 Die ZIP-Datei muss zuerst heruntergeladen und entpackt werden. Danach wird im entpackten Projektordner die `.Rproj`-Datei geöffnet. Erst dann liegen Skript, Datenordner und relative Pfade in der erwarteten Projektstruktur.
 
