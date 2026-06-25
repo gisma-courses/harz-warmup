@@ -34,7 +34,7 @@ Nicht die Darstellung ist der Kern, sondern die Modellannahme dahinter.
 
 Projekt-ZIP herunterladen:
 
-[**Projekt herunterladen**](../assetts/archib.zip){download="archib.zip"}
+[**Projekt herunterladen**](../assets/Archiv.zip){download="Archiv.zip"}
 
 Dann:
 

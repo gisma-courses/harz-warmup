@@ -1,6 +1,11 @@
 project:
   type: website
   output-dir: docs/
+  resources:
+    - "assets/Archive.zip"
+    - "scripts/microclimate_warmup_minimal.R"
+    
+  
   render:
     - "index.qmd"
     - "pages/*.qmd"
