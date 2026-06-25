@@ -4,7 +4,20 @@
 # =============================================================================
 #
 # Dieses Skript ist absichtlich klein gehalten.
-# Es zeigt die minimale technische Kette:
+# Es zeigt die minimale technische Kette, mit der eine typische Ausgangsfrage
+# bearbeitbar wird:
+#
+#   Wir haben wie üblich nur einzelne Messpunkte. Wie gehen wir methodisch vor,
+#   wenn daraus eine räumliche Aussagefläche entstehen soll?
+#
+# Die Studierenden trainieren hier nicht ein fertiges Mikroklimamodell, sondern
+# den Umgang mit einem Basisskript. Das Skript wird geöffnet, blockweise gelesen
+# und ausgeführt. Jeder Block beantwortet einen Teil der Einstiegsfrage:
+# Welche Daten liegen vor? Welche Fläche ist überhaupt gestützt? Welche Annahme
+# überträgt Punktwerte in den Raum? Und wie kritisch darf das Ergebnis gelesen
+# werden?
+#
+# Technische Kette:
 #
 #   1. Messpunkte laden
 #   2. Höhenraster laden
@@ -16,10 +29,12 @@
 #   8. die Modelle mit Leave-One-Out-Cross-Validation prüfen
 #   9. RMSE berechnen
 #  10. die Ergebnisraster mit gleicher Farbskala darstellen
+#  11. die Ergebnisraster zusätzlich als Leaflet-Karte anzeigen
 #
 # Inhaltliche Leitidee:
 #   Aus Punktmessungen entsteht nicht automatisch eine belastbare Fläche.
-#   Dazwischen steht immer eine Modellannahme.
+#   Dazwischen steht immer eine Modellannahme. Genau diese Modellannahme ist
+#   der methodische Kern der Übung.
 #
 # Die vier Modellannahmen in diesem Skript:
 #
@@ -39,6 +54,7 @@
 #   terra
 #   gstat
 #   randomForest
+#   leaflet
 #
 # =============================================================================
 
@@ -59,12 +75,16 @@
 # randomForest:
 #   liefert das datengetriebene Vergleichsmodell.
 #
+# leaflet:
+#   zeigt die Ergebnisraster am Ende zusätzlich als interaktive Karte.
+#
 # Keine weiteren Pakete werden benötigt.
 
 library(sf)
 library(terra)
 library(gstat)
 library(randomForest)
+library(leaflet)
 
 
 # Messstationen laden.
@@ -99,6 +119,11 @@ names(dem) <- "altitude"
 #
 # Die Messdaten enthalten mehrere Temperaturspalten.
 # Für den Warmup wird genau eine Spalte gewählt.
+#
+# Die fachliche Frage lautet hier nicht: Gibt es Mikroklima?
+# Die Ausgangslage ist praktischer:
+#   Wir haben einzelne Messpunkte und wollen daraus eine vorsichtige räumliche
+#   Aussage ableiten.
 #
 # Vorteil:
 #   Alle Modelle arbeiten mit derselben Zielvariable.
@@ -231,7 +256,7 @@ grid <- grid[!is.na(grid$altitude), ]
 #
 # remove = FALSE:
 #   x und y bleiben zusätzlich als normale Tabellenspalten erhalten.
-#   Das ist später für Random Forest nötig.
+#   Das ist später für Random Forest und die Kartendarstellung nützlich.
 
 grid_sf <- st_as_sf(
   grid,
@@ -477,28 +502,28 @@ rf_cv <- rep(NA, nrow(pts))
 # i ist jeweils die Station, die ausgelassen wird.
 
 for (i in 1:nrow(pts)) {
-
+  
   # Trainingsdaten:
   # alle Stationen außer Station i.
   train <- pts[-i, ]
-
+  
   # Testdaten:
   # nur Station i.
   test <- pts[i, ]
-
+  
   # LM ohne die ausgelassene Station neu berechnen.
   fit_lm_i <- lm(temp ~ altitude, data = st_drop_geometry(train))
-
+  
   # Temperatur an der ausgelassenen Station mit dem LM vorhersagen.
   lm_cv[i] <- predict(fit_lm_i, newdata = st_drop_geometry(test))
-
+  
   # RF ohne die ausgelassene Station neu berechnen.
   fit_rf_i <- randomForest(
     temp ~ x + y + altitude,
     data = st_drop_geometry(train),
     ntree = 200
   )
-
+  
   # Temperatur an der ausgelassenen Station mit RF vorhersagen.
   rf_cv[i] <- predict(fit_rf_i, newdata = st_drop_geometry(test))
 }
@@ -564,10 +589,11 @@ rmse <- data.frame(
 
 
 # =============================================================================
-# 15. ERGEBNISRASTER DARSTELLEN
+# 15. ERGEBNISRASTER STATISCH DARSTELLEN
 # =============================================================================
 #
-# Die vier Ergebnisraster werden gemeinsam dargestellt.
+# Die vier Ergebnisraster werden zunächst als einfache Plots gemeinsam
+# dargestellt.
 #
 # Wichtig:
 #   Alle verwenden dieselbe Farbskala.
@@ -612,6 +638,84 @@ par(mfrow = c(1, 1))
 
 print(rmse)
 
+# =============================================================================
+# 16. ERGEBNISRASTER ALS LEAFLET-KARTE DARSTELLEN
+# =============================================================================
+#
+# Die statischen Plots zeigen den direkten Modellvergleich.
+# Zusätzlich werden dieselben Ergebnisraster in einer interaktiven Leaflet-Karte
+# angezeigt.
+#
+# Warum zusätzlich Leaflet?
+#   Die Karte macht die räumliche Aussagefläche, die Messpunkte und die vier
+#   Modellannahmen noch einmal gemeinsam lesbar. Damit wird die Einstiegsfrage
+#   wieder aufgegriffen: Wie gehen wir vor, wenn wir nur Punkte haben, aber eine
+#   räumliche Aussage treffen wollen?
+#
+# Wichtig:
+#   Leaflet ist hier nur Darstellung.
+#   Es rechnet kein neues Modell und verändert keine Ergebniswerte.
+#   Die angezeigten Layer sind dieselben Raster wie in den statischen Plots.
+
+pts_ll  <- st_transform(pts, 4326)
+area_ll <- st_transform(area, 4326)
+
+pal <- colorNumeric(
+  palette = "RdYlBu",
+  domain = z,
+  reverse = TRUE,
+  na.color = "transparent"
+)
+
+leaflet_map <- leaflet() |>
+  addProviderTiles(providers$CartoDB.Positron, group = "Hintergrund") |>
+  addPolygons(
+    data = area_ll,
+    group = "Aussagefläche",
+    color = "black",
+    weight = 2,
+    fill = FALSE
+  )
+
+for (i in 1:nlyr(maps)) {
+  leaflet_map <- leaflet_map |>
+    addRasterImage(
+      x = maps[[i]],
+      colors = pal,
+      opacity = 0.75,
+      group = names(maps)[i],
+      project = TRUE
+    )
+}
+
+leaflet_map <- leaflet_map |>
+  addCircleMarkers(
+    data = pts_ll,
+    group = "Messpunkte",
+    radius = 5,
+    stroke = TRUE,
+    weight = 1,
+    color = "black",
+    fillColor = ~pal(temp),
+    fillOpacity = 1,
+    label = ~paste0("Messwert: ", round(temp, 2), " °C")
+  ) |>
+  addLegend(
+    pal = pal,
+    values = z,
+    title = "Temperatur",
+    opacity = 1
+  ) |>
+  addLayersControl(
+    baseGroups = names(maps),
+    overlayGroups = c("Messpunkte", "Aussagefläche"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) |>
+  hideGroup(names(maps)[-1])
+
+leaflet_map
+
+
 
 # =============================================================================
 # ENDE
@@ -632,6 +736,10 @@ print(rmse)
 #     datengetriebene Raum-/Höhenpartition
 #
 # Zentrale Schlussfolgerung:
+#   Wenn nur Punktmessungen vorliegen, ist der Weg zur Fläche kein technischer
+#   Automatismus. Er besteht aus Datenprüfung, Begrenzung der Aussagefläche,
+#   Wahl einer Modellannahme, Validierung und kritischer Kartenlektüre.
+#
 #   Ein räumliches Ergebnis aus Punktmessungen ist immer eine modellierte
 #   Aussage. Es muss zur Datenlage, zur Aussagefläche und zur fachlichen
 #   Modellannahme passen.

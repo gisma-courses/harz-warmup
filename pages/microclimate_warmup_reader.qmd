@@ -22,15 +22,17 @@ execute:
 
 # Worum es geht
 
-Dieser Reader begleitet einen Hands-on-Einstieg in räumliches Arbeiten mit R und RStudio. Im Mittelpunkt steht ein überschaubares Skript: Es wird geöffnet, blockweise ausgeführt und so gelesen, dass nachvollziehbar wird, welche Daten eingelesen werden, welche räumlichen Operationen stattfinden und welche Ergebnisdatensätze daraus entstehen.
+Dieser Reader begleitet einen Hands-on-Einstieg in räumliches Arbeiten mit R und RStudio. Im Mittelpunkt steht ein basales Skript: Es wird geöffnet, blockweise ausgeführt und so gelesen, dass nachvollziehbar wird, welche Daten eingelesen werden, welche räumlichen Operationen stattfinden und welche Ergebnisdatensätze daraus entstehen. Die SuS sollen hier nicht selbst einen vollständigen Forschungsworkflow entwickeln, sondern trainieren, ein vorhandenes Skript kontrolliert zu nutzen, seine Zwischenschritte zu verstehen und die Ergebnisse fachlich zu lesen.
 
-Fachlich geht es um ein typisches Problem der Geoinformatik und physischen Geographie: Messungen liegen punktuell vor, die Fragestellung richtet sich aber auf eine Fläche. Aus einzelnen Temperaturmessungen verteilter Messstationen soll eine räumliche Ergebnisfläche entstehen. Genau an dieser Stelle beginnt Interpolation beziehungsweise allgemeiner: raumfüllende Modellierung.
+Fachlich geht es um ein typisches Problem der Geoinformatik und physischen Geographie: Messungen liegen punktuell vor, die Fragestellung richtet sich aber auf eine Fläche. Das ist die normale Ausgangslage vieler Messkampagnen. Man hat Stationen, Logger oder einzelne Messpunkte, aber die eigentliche Frage lautet nicht nur: Was wurde genau an diesen Punkten gemessen? Sie lautet: Wie können wir aus diesen Punkten eine begrenzte, nachvollziehbare räumliche Aussage ableiten?
 
-Die Übung ist zugleich technisch und inhaltlich angelegt. Technisch geht es darum, mit RStudio ein Skript auszuführen, einfache räumliche Datenobjekte zu verarbeiten und Ergebnisraster zu erzeugen. Inhaltlich geht es darum zu verstehen, dass jede flächenhafte Darstellung aus Punktdaten eine Annahme darüber enthält, wie Werte zwischen Messpunkten in den Raum übertragen werden.
+Die Übung ist deshalb zugleich technisch und inhaltlich angelegt. Technisch geht es darum, mit RStudio ein Skript auszuführen, einfache räumliche Datenobjekte zu verarbeiten, Ergebnisraster zu erzeugen und diese am Ende auch interaktiv in einer Leaflet-Karte zu betrachten. Inhaltlich geht es darum zu verstehen, dass jede flächenhafte Darstellung aus Punktdaten eine Annahme darüber enthält, wie Werte zwischen Messpunkten in den Raum übertragen werden.
 
 Die zentrale Frage lautet:
 
-> Wie wird aus punktuellen Messungen ein flächenhafter Ergebnisdatensatz, und wo endet dessen Gültigkeit?
+> Wir haben wie üblich nur einzelne Messpunkte. Wie gehen wir vor, wenn wir daraus trotzdem eine räumliche Aussage zur Temperaturverteilung ableiten wollen?
+
+Die Übung fragt also methodisch: Was tun wir, wenn die Beobachtung punktuell ist, die Frage aber flächenhaft gestellt wird?
 
 # Projekt herunterladen und öffnen
 
@@ -57,6 +59,7 @@ library(sf)
 library(terra)
 library(gstat)
 library(randomForest)
+library(leaflet)
 
 m   <- readRDS("data/climdata.rds")
 dem <- rast("data/DEM1.tif")
@@ -224,6 +227,65 @@ for (i in 1:nlyr(maps)) {
 par(mfrow = c(1, 1))
 
 print(rmse)
+
+
+# 11. Ergebnisse als Leaflet-Karte darstellen ----------------------------
+# Die gleichen Ergebnisraster werden zusätzlich interaktiv angezeigt.
+
+pal <- leaflet::colorNumeric(
+  palette = hcl.colors(100, "RdYlBu", rev = TRUE),
+  domain = z,
+  na.color = "transparent"
+)
+
+pts_leaflet <- st_transform(pts, 4326)
+pts_xy <- st_coordinates(pts_leaflet)
+
+leaflet_map <- leaflet::leaflet()
+leaflet_map <- leaflet::addProviderTiles(
+  leaflet_map,
+  leaflet::providers$CartoDB.Positron
+)
+
+for (i in 1:nlyr(maps)) {
+  leaflet_map <- leaflet::addRasterImage(
+    leaflet_map,
+    x = raster::raster(maps[[i]]),
+    colors = pal,
+    opacity = 0.70,
+    group = names(maps)[i]
+  )
+}
+
+leaflet_map <- leaflet::addCircleMarkers(
+  leaflet_map,
+  lng = pts_xy[, 1],
+  lat = pts_xy[, 2],
+  radius = 4,
+  stroke = FALSE,
+  fillOpacity = 0.9,
+  label = paste0("Temperatur: ", round(pts$temp, 2), " °C"),
+  group = "Messpunkte"
+)
+
+leaflet_map <- leaflet::addLayersControl(
+  leaflet_map,
+  baseGroups = names(maps),
+  overlayGroups = "Messpunkte",
+  options = leaflet::layersControlOptions(collapsed = FALSE)
+)
+
+leaflet_map <- leaflet::addLegend(
+  leaflet_map,
+  pal = pal,
+  values = z,
+  title = "Temperatur",
+  opacity = 0.70
+)
+
+leaflet_map <- leaflet::hideGroup(leaflet_map, names(maps)[-1])
+
+leaflet_map
 ```
 :::
 
@@ -232,18 +294,20 @@ print(rmse)
 
 Mikroklima beschreibt kleinräumige Unterschiede in Temperatur, Feuchte, Wind, Strahlung oder thermischer Belastung. Solche Unterschiede entstehen nicht zufällig. Sie hängen unter anderem mit Geländeform, Höhe, Hanglage, Vegetation, Verschattung, Bodenbedeckung, Bebauung, Kaltluftbildung und Luftaustausch zusammen.
 
-In dieser Übung wird dieser Zusammenhang bewusst stark reduziert. Verwendet werden nur zwei fachliche Informationsquellen:
+Für diese Übung ist Mikroklima der fachliche Anlass für die methodische Frage: Wie arbeitet man weiter, wenn nur punktuelle Messungen vorliegen, die gewünschte Aussage aber räumlich ist?
+
+Zwischen Höhe, Luftdruck und Temperatur besteht ein grundlegender physikalischer Zusammenhang: Mit zunehmender Höhe nimmt der Luftdruck ab, Luft dehnt sich bei Aufstieg aus und kühlt dabei in der Regel ab. Deshalb ist Höhe häufig ein sinnvoller erster Prädiktor für räumliche Temperaturunterschiede.
+
+Verwendet werden daher neben den Temperaturmessungen an einzelnen Stationen  ein digitales Höhenmodell. Die Übung nutzt Höhe als einfache, fachlich begründbare Hilfsvariable ein, um zu zeigen, wie Punktmessungen mit einem flächenhaften Raster verbunden und in eine räumliche Ergebnisfläche übersetzt werden können.
 
 1. Temperaturmessungen an mehreren Stationen.
 2. Höhe aus einem digitalen Höhenmodell.
 
-Damit wird kein vollständiges Mikroklimamodell gebaut. Die Übung zeigt einen frühen, grundlegenden Arbeitsschritt: Messwerte werden räumlich organisiert, mit einem Höhenraster verbunden und mit einfachen Verfahren in eine Ergebnisfläche übertragen.
-
-Das Ergebnis ist daher nicht einfach eine Abbildung. Es ist ein modellierter räumlicher Datensatz. Je nachdem, ob Nähe, Stationszuständigkeit, Höhe oder ein datengetriebenes Muster als wichtig angenommen wird, entsteht eine andere räumliche Struktur.
+Das Ergebnis ist daher ein modellierter räumlicher Datensatz. Je nachdem, ob Nähe, Stationszuständigkeit, Höhe oder ein datengetriebenes Muster als wichtig angenommen wird, entsteht eine andere räumliche Struktur.
 
 # Methodische Idee: Raum füllen
 
-Messstationen liefern punktuelle Werte. Eine räumliche Aussagefläche braucht aber Werte für viele Rasterzellen. Zwischen diesen beiden Ebenen liegt die zentrale methodische Aufgabe:
+Messstationen liefern punktuelle Werte. Eine räumliche Aussagefläche braucht aber Werte für viele Rasterzellen. Zwischen diesen beiden Ebenen liegt die zentrale methodische Aufgabe. Genau diese Aufgabe beantwortet das basale Skript Schritt für Schritt:
 
 > Punktwerte müssen in eine flächenhafte Aussage übersetzt werden.
 
@@ -376,6 +440,10 @@ map_rf <- make_map(rf_pred, "RF_warning")
 :::
 
 
+![Vier einfache Wege von punktuellen Temperaturmessungen zu einer räumlichen Ergebnisfläche. Die Grafik zeigt, dass Voronoi, IDW, ein lineares Höhenmodell und Random Forest dieselben Messpunkte mit unterschiedlichen Modellannahmen in den Raum übertragen. Entscheidend ist daher nicht nur das fertige Kartenbild, sondern die Frage, welche Annahme die räumliche Aussage trägt und wo ihre fachliche Grenze lieg](../images/4methods.png)
+
+
+
 # Gültige Fläche
 
 Das Skript begrenzt die Ausgabe auf den unmittelbaren Messraum. Dazu wird aus den Stationen eine konvexe Hülle gebildet und um 20 m gepuffert:
@@ -409,15 +477,15 @@ RMSE =
 }
 $$
 
-Dabei ist: $y_i$ der gemessene Temperaturwert an Station $i$, $\hat{y_i}$ der vorhergesagte Temperaturwert für die ausgelassene Station, $n$ die Anzahl der Stationen.
+Dabei ist `y_i` der gemessene Temperaturwert an Station `i`, `ŷ_i` der vorhergesagte Temperaturwert für die ausgelassene Station und `n` die Anzahl der Stationen.
 
 Der RMSE gibt an, wie groß der typische Vorhersagefehler bei dieser Rückschätzung ist. Ein kleinerer RMSE bedeutet, dass die ausgelassenen Stationen im Durchschnitt besser getroffen wurden.
 
 Für die Interpretation des flächenhaften Ergebnisses reicht das aber nicht. Der RMSE bewertet Punktvorhersagen an bekannten Stationsorten. Er sagt nicht automatisch, ob die gesamte Ergebnisfläche fachlich plausibel modelliert wurde. Besonders bei wenigen und räumlich eng liegenden Punkten muss das Ergebnis zusätzlich nach seiner Modelllogik gelesen werden.
 
-# Technische Minimalleistung des Skripts
+# Technische Minimalleistung des basalen Skripts
 
-Das Skript ersetzt keinen vollständigen Forschungsworkflow. Es zeigt die kleinste sinnvolle Kette, mit der aus Messpunkten, einem Höhenraster und einfachen Modellannahmen räumliche Ergebnisdatensätze entstehen.
+Das Skript ersetzt keinen vollständigen Forschungsworkflow. Es zeigt die kleinste sinnvolle Kette, mit der aus Messpunkten, einem Höhenraster und einfachen Modellannahmen räumliche Ergebnisdatensätze entstehen. Genau deshalb eignet es sich als Trainingsskript: Die SuS können den Arbeitsweg nachvollziehen, ohne dass Rohdatenimport, Paketmanagement, Fehlerbehandlung oder ein vollständiger Analyseviewer den Kern überdecken.
 
 ## 1. Daten laden
 
@@ -429,6 +497,7 @@ library(sf)
 library(terra)
 library(gstat)
 library(randomForest)
+library(leaflet)
 
 m   <- readRDS("data/climdata.rds")
 dem <- rast("data/DEM1.tif")
@@ -609,9 +678,9 @@ rmse <- data.frame(
 ```
 :::
 
-## 10. Ergebnisraster darstellen
+## 10. Ergebnisraster als statische Plots darstellen
 
-Die vier Ergebnisraster werden nebeneinander dargestellt. Alle verwenden dieselbe Farbskala, damit die räumlichen Muster vergleichbar bleiben.
+Die vier Ergebnisraster werden zunächst nebeneinander als statische Plots dargestellt. Alle verwenden dieselbe Farbskala, damit die räumlichen Muster vergleichbar bleiben.
 
 ::: {.callout-note title="Code-Snippet: Ergebnisraster darstellen" collapse="true"}
 ```r
@@ -631,6 +700,69 @@ print(rmse)
 ```
 :::
 
+## 11. Ergebnisse als Leaflet-Karte darstellen
+
+Am Ende werden die gleichen Ergebnisraster zusätzlich in eine interaktive Leaflet-Karte eingebunden. Die Karte ersetzt die statischen Plots nicht, sondern ergänzt sie: Die SuS können zwischen den Modellannahmen umschalten, die Messpunkte sichtbar lassen und dadurch prüfen, wie stark sich die räumliche Aussage je nach Verfahren verändert.
+
+::: {.callout-note title="Code-Snippet: Leaflet-Karte" collapse="true"}
+```r
+pal <- leaflet::colorNumeric(
+  palette = hcl.colors(100, "RdYlBu", rev = TRUE),
+  domain = z,
+  na.color = "transparent"
+)
+
+pts_leaflet <- st_transform(pts, 4326)
+pts_xy <- st_coordinates(pts_leaflet)
+
+leaflet_map <- leaflet::leaflet()
+leaflet_map <- leaflet::addProviderTiles(
+  leaflet_map,
+  leaflet::providers$CartoDB.Positron
+)
+
+for (i in 1:nlyr(maps)) {
+  leaflet_map <- leaflet::addRasterImage(
+    leaflet_map,
+    x = raster::raster(maps[[i]]),
+    colors = pal,
+    opacity = 0.70,
+    group = names(maps)[i]
+  )
+}
+
+leaflet_map <- leaflet::addCircleMarkers(
+  leaflet_map,
+  lng = pts_xy[, 1],
+  lat = pts_xy[, 2],
+  radius = 4,
+  stroke = FALSE,
+  fillOpacity = 0.9,
+  label = paste0("Temperatur: ", round(pts$temp, 2), " °C"),
+  group = "Messpunkte"
+)
+
+leaflet_map <- leaflet::addLayersControl(
+  leaflet_map,
+  baseGroups = names(maps),
+  overlayGroups = "Messpunkte",
+  options = leaflet::layersControlOptions(collapsed = FALSE)
+)
+
+leaflet_map <- leaflet::addLegend(
+  leaflet_map,
+  pal = pal,
+  values = z,
+  title = "Temperatur",
+  opacity = 0.70
+)
+
+leaflet_map <- leaflet::hideGroup(leaflet_map, names(maps)[-1])
+
+leaflet_map
+```
+:::
+
 # Was nicht enthalten ist
 
 Viele Bestandteile, die in einer umfangreichen Analyse zwingend oder sinnvoll wären, werden bewusst weggelassen:
@@ -647,7 +779,7 @@ OK
 GAM
 TPS
 große Benchmark-Tabellen
-Viewer
+vollständiger Ergebnisviewer
 PDF-Report
 Batch-Verarbeitung aller Zeitpunkte
 ```
@@ -665,8 +797,9 @@ Leitfragen:
 3. Welches Ergebnis folgt vor allem der Höhe?
 4. Welches Ergebnis wirkt rechnerisch gut, ist aber fachlich riskant?
 5. Welche Rolle spielt die Begrenzung auf die Convex-Hull-Fläche?
-6. Warum reicht ein niedriger RMSE nicht als alleinige Begründung?
+6. Was wird in der Leaflet-Karte leichter erkennbar als in den statischen Plots?
+7. Warum reicht ein niedriger RMSE nicht als alleinige Begründung?
 
 Die wichtigste Schlussfolgerung lautet:
 
-> Eine räumliche Ergebnisfläche aus Messpunkten ist immer eine modellierte Aussage. Sie muss zur Datenlage, zur fachlichen Fragestellung, zur räumlichen Gültigkeitsfläche und zur gewählten Modellannahme passen.
+> Eine räumliche Ergebnisfläche aus Messpunkten ist immer eine modellierte Aussage. Sie muss zur Datenlage, zur fachlichen Fragestellung, zur räumlichen Gültigkeitsfläche und zur gewählten Modellannahme passen. Das basale Skript zeigt dafür den kleinsten nachvollziehbaren Arbeitsweg: von Punkten über Raster und Modellannahme zur statischen und interaktiven Ergebnisdarstellung.
